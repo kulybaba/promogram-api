@@ -54,9 +54,15 @@ class Company
      */
     private $coupons;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Post", mappedBy="company")
+     */
+    private $posts;
+
     public function __construct()
     {
         $this->coupons = new ArrayCollection();
+        $this->posts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -167,6 +173,34 @@ class Company
             if ($coupon->getCompany() === $this) {
                 $coupon->setCompany(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Post[]
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): self
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+            $post->addCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): self
+    {
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
+            $post->removeCompany($this);
         }
 
         return $this;
