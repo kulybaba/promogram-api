@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,6 +48,16 @@ class Company
      * @ORM\OneToOne(targetEntity="App\Entity\Point", mappedBy="company", cascade={"persist", "remove"})
      */
     private $point;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Coupon", mappedBy="company", orphanRemoval=true)
+     */
+    private $coupons;
+
+    public function __construct()
+    {
+        $this->coupons = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -124,6 +136,37 @@ class Company
         // set the owning side of the relation if necessary
         if ($this !== $point->getCompany()) {
             $point->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Coupon[]
+     */
+    public function getCoupons(): Collection
+    {
+        return $this->coupons;
+    }
+
+    public function addCoupon(Coupon $coupon): self
+    {
+        if (!$this->coupons->contains($coupon)) {
+            $this->coupons[] = $coupon;
+            $coupon->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoupon(Coupon $coupon): self
+    {
+        if ($this->coupons->contains($coupon)) {
+            $this->coupons->removeElement($coupon);
+            // set the owning side to null (unless already changed)
+            if ($coupon->getCompany() === $this) {
+                $coupon->setCompany(null);
+            }
         }
 
         return $this;

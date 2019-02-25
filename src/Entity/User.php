@@ -85,12 +85,18 @@ class User implements UserInterface
      */
     private $points;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Coupon", mappedBy="user", orphanRemoval=true)
+     */
+    private $coupons;
+
     public function __construct()
     {
         $this->company = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->points = new ArrayCollection();
+        $this->coupons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -353,6 +359,37 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($point->getUser() === $this) {
                 $point->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Coupon[]
+     */
+    public function getCoupons(): Collection
+    {
+        return $this->coupons;
+    }
+
+    public function addCoupon(Coupon $coupon): self
+    {
+        if (!$this->coupons->contains($coupon)) {
+            $this->coupons[] = $coupon;
+            $coupon->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoupon(Coupon $coupon): self
+    {
+        if ($this->coupons->contains($coupon)) {
+            $this->coupons->removeElement($coupon);
+            // set the owning side to null (unless already changed)
+            if ($coupon->getUser() === $this) {
+                $coupon->setUser(null);
             }
         }
 
