@@ -42,6 +42,11 @@ class Company
      */
     private $user;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Point", mappedBy="company", cascade={"persist", "remove"})
+     */
+    private $point;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -103,6 +108,23 @@ class Company
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getPoint(): ?Point
+    {
+        return $this->point;
+    }
+
+    public function setPoint(Point $point): self
+    {
+        $this->point = $point;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $point->getCompany()) {
+            $point->setCompany($this);
+        }
 
         return $this;
     }

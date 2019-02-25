@@ -80,11 +80,17 @@ class User implements UserInterface
      */
     private $followers;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Point", mappedBy="user", orphanRemoval=true)
+     */
+    private $points;
+
     public function __construct()
     {
         $this->company = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->points = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -317,6 +323,37 @@ class User implements UserInterface
         if ($this->followers->contains($follower)) {
             $this->followers->removeElement($follower);
             $follower->removeFollowing($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Point[]
+     */
+    public function getPoints(): Collection
+    {
+        return $this->points;
+    }
+
+    public function addPoint(Point $point): self
+    {
+        if (!$this->points->contains($point)) {
+            $this->points[] = $point;
+            $point->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePoint(Point $point): self
+    {
+        if ($this->points->contains($point)) {
+            $this->points->removeElement($point);
+            // set the owning side to null (unless already changed)
+            if ($point->getUser() === $this) {
+                $point->setUser(null);
+            }
         }
 
         return $this;
