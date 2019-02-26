@@ -17,6 +17,11 @@ security:
         main:
             anonymous: true
 
+            pattern: ^/api/
+            guard:
+                authenticators:
+                    - App\Security\TokenAuthenticator
+
             # activate different ways to authenticate
 
             # http_basic: true
