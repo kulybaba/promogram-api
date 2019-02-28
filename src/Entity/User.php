@@ -152,6 +152,7 @@ class User implements UserInterface, \JsonSerializable
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
+        $this->picture = '/images/profile/default_picture.png';
         $this->company = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
