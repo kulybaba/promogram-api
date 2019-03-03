@@ -149,6 +149,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $plainPassword;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $google_id;
+
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
@@ -575,7 +580,20 @@ class User implements UserInterface, \JsonSerializable
             'role' => $this->getRoles(),
             'email' => $this->getEmail(),
             'password' => $this->getPassword(),
-            'api_token' => $this->getApiToken()
+            'api_token' => $this->getApiToken(),
+            'google_id' => $this->getGoogleId()
         ];
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->google_id;
+    }
+
+    public function setGoogleId(?string $google_id): self
+    {
+        $this->google_id = $google_id;
+
+        return $this;
     }
 }
