@@ -29,7 +29,7 @@ class User implements UserInterface, \JsonSerializable
      *     checkMX = true
      * )
      * @var string
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     private $email;
 
@@ -150,9 +150,14 @@ class User implements UserInterface, \JsonSerializable
     private $plainPassword;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
      */
     private $google_id;
+
+    /**
+     * @ORM\Column(type="bigint", nullable=true, unique=true)
+     */
+    private $instagramId;
 
     public function __construct()
     {
@@ -581,7 +586,8 @@ class User implements UserInterface, \JsonSerializable
             'email' => $this->getEmail(),
             'password' => $this->getPassword(),
             'api_token' => $this->getApiToken(),
-            'google_id' => $this->getGoogleId()
+            'google_id' => $this->getGoogleId(),
+            'instagram_id' => $this->getInstagramId()
         ];
     }
 
@@ -593,6 +599,18 @@ class User implements UserInterface, \JsonSerializable
     public function setGoogleId(?string $google_id): self
     {
         $this->google_id = $google_id;
+
+        return $this;
+    }
+
+    public function getInstagramId(): ?int
+    {
+        return $this->instagramId;
+    }
+
+    public function setInstagramId(?int $instagramId): self
+    {
+        $this->instagramId = $instagramId;
 
         return $this;
     }

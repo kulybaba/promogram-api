@@ -14,34 +14,33 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/api")
  */
-class GoogleController extends AbstractController
+class InstagramController extends AbstractController
 {
     /**
-     * @Route("/connect/google", name="connect_google_start")
+     * @Route("/connect/instagram", name="connect_instagram_start")
      */
     public function connectAction(ClientRegistry $clientRegistry)
     {
         return $clientRegistry
-            ->getClient('google')
-            ->redirect(['email', 'profile']);
+            ->getClient('instagram')
+            ->redirect(['basic']);
     }
 
     /**
-     * @Route("/connect/google/check", name="connect_google_check")
+     * @Route("/connect/instagram/check", name="connect_instagram_check")
      */
     public function connectCheckAction(Request $request, ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService)
     {
-        /** @var \KnpU\OAuth2ClientBundle\Client\Provider\GoogleClient $client */
-        $client = $clientRegistry->getClient('google');
+        /** @var \KnpU\OAuth2ClientBundle\Client\Provider\InstagramClient $client */
+        $client = $clientRegistry->getClient('instagram');
 
         try {
-            /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
-            $googleUser = $client->fetchUser();
+            /** @var \League\OAuth2\Client\Provider\InstagramResourceOwner $instagramUser */
+            $instagramUser = $client->fetchUser();
 
-            if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()])) {
-                $user->setPicture($googleUser->getAvatar());
+            if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['instagramId' => $instagramUser->getId()])) {
+                $user->setPicture($instagramUser->getImageurl());
                 $user->setApiToken($userService->generateApiToken());
-                $user->setGoogleId($googleUser->getId());
 
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
@@ -50,7 +49,7 @@ class GoogleController extends AbstractController
                 return $this->json($user);
             }
 
-            return $this->json($loginService->googleLogin($googleUser));
+            return $this->json($loginService->instagramLogin($instagramUser));
 
         } catch (IdentityProviderException $e) {
             return $this->json($e->getMessage());

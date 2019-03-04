@@ -98,6 +98,9 @@
     "hackzilla/password-generator": {
         "version": "1.4.0"
     },
+    "jakeasmith/http_build_url": {
+        "version": "1.0.1"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -121,6 +124,9 @@
     },
     "league/oauth2-google": {
         "version": "3.0.1"
+    },
+    "league/oauth2-instagram": {
+        "version": "2.0.0"
     },
     "nikic/php-parser": {
         "version": "v4.2.1"

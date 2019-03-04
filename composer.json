@@ -10,6 +10,7 @@
         "knplabs/knp-paginator-bundle": "^2.8",
         "knpuniversity/oauth2-client-bundle": "^1.27",
         "league/oauth2-google": "^3.0",
+        "league/oauth2-instagram": "^2.0",
         "ramsey/uuid": "^3.8",
         "sensio/framework-extra-bundle": "^5.2",
         "stof/doctrine-extensions-bundle": "^1.3",

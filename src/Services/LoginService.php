@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\GoogleUser;
+use League\OAuth2\Client\Provider\InstagramResourceOwner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class LoginService extends AbstractController
@@ -32,6 +33,27 @@ class LoginService extends AbstractController
         $user->setApiToken($this->userService->generateApiToken());
         $user->setApproved(true);
         $user->setGoogleId($googleUser->getId());
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $user;
+    }
+
+    public function instagramLogin(InstagramResourceOwner $instagramUser)
+    {
+        $user = new User();
+        $segments = explode(' ', $instagramUser->getName());
+        $user->setFirstName($segments[0]);
+        $user->setLastName($segments[1]);
+        $user->setPicture($instagramUser->getImageurl());
+        $user->setAbout($instagramUser->getDescription());
+        $user->setPlainPassword($this->userService->generatePassword());
+        $user->setPassword($this->userService->encodePassword($user));
+        $user->setRoles(['ROLE_USER']);
+        $user->setApiToken($this->userService->generateApiToken());
+        $user->setApproved(true);
+        $user->setInstagramId($instagramUser->getId());
 
         $this->em->persist($user);
         $this->em->flush();
