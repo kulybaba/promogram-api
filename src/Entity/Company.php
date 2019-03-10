@@ -5,11 +5,14 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CompanyRepository")
+ * @UniqueEntity(fields="name", message="Company name already taken")
  */
-class Company
+class Company implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -19,27 +22,48 @@ class Company
     private $id;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="20",
+     *     min="2",
+     *     maxMessage="Name must contain maximum 20 characters.",
+     *     minMessage="Name must contain minimum 2 characters."
+     * )
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="255",
+     *     min="2",
+     *     maxMessage="Address must contain maximum 255 characters.",
+     *     minMessage="Address must contain minimum 2 characters."
+     * )
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $address;
 
     /**
+     * @Assert\NotBlank()
+     * @var float
      * @ORM\Column(type="float")
      */
     private $latitude;
 
     /**
+     * @Assert\NotBlank()
+     * @var float
      * @ORM\Column(type="float")
      */
     private $longitude;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="company")
+     * @Assert\NotBlank()
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="company", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
@@ -204,5 +228,17 @@ class Company
         }
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'address' => $this->getAddress(),
+            'latitude' => $this->getLatitude(),
+            'longitude' => $this->getLongitude(),
+            'user' => $this->getUser()
+        ];
     }
 }

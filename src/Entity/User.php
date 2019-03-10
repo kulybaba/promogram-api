@@ -5,12 +5,15 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity(fields="email", message="Email already taken")
  */
-class User implements UserInterface
+class User implements UserInterface, \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -20,7 +23,13 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\NotBlank()
+     * @Assert\Email(
+     *     message="The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
+     * @var string
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     private $email;
 
@@ -36,27 +45,50 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="20",
+     *     min="2",
+     *     maxMessage="First name must contain maximum 20 characters.",
+     *     minMessage="First name must contain minimum 2 characters."
+     * )
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $firstName;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="20",
+     *     min="2",
+     *     maxMessage="Last name must contain maximum 20 characters.",
+     *     minMessage="Last name must contain minimum 2 characters."
+     * )
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $lastName;
 
     /**
+     * @Assert\Length(
+     *     max="255",
+     *     maxMessage="About must contain maximum 255 characters."
+     * )
+     * @var string
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $about;
 
     /**
+     * @Assert\NotBlank()
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $picture;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $apiToken;
 
@@ -105,8 +137,32 @@ class User implements UserInterface
      */
     private $likes;
 
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="30",
+     *     min="6",
+     *     maxMessage="Password must contain maximum 30 characters.",
+     *     minMessage="Password must contain minimum 6 characters."
+     * )
+     * @var string
+     */
+    private $plainPassword;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     */
+    private $google_id;
+
+    /**
+     * @ORM\Column(type="bigint", nullable=true, unique=true)
+     */
+    private $instagramId;
+
     public function __construct()
     {
+        $this->roles = ['ROLE_RETAILER'];
+        $this->picture = '/images/profile/default_picture.png';
         $this->company = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
@@ -150,8 +206,6 @@ class User implements UserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -503,6 +557,60 @@ class User implements UserInterface
                 $like->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'approved' => $this->getApproved(),
+            'firstName' => $this->getFirstName(),
+            'lastName' => $this->getLastName(),
+            'about' => $this->getAbout(),
+            'picture' => $this->getPicture(),
+            'role' => $this->getRoles(),
+            'email' => $this->getEmail(),
+            'password' => $this->getPassword(),
+            'api_token' => $this->getApiToken(),
+            'google_id' => $this->getGoogleId(),
+            'instagram_id' => $this->getInstagramId()
+        ];
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->google_id;
+    }
+
+    public function setGoogleId(?string $google_id): self
+    {
+        $this->google_id = $google_id;
+
+        return $this;
+    }
+
+    public function getInstagramId(): ?int
+    {
+        return $this->instagramId;
+    }
+
+    public function setInstagramId(?int $instagramId): self
+    {
+        $this->instagramId = $instagramId;
 
         return $this;
     }
