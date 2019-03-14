@@ -45,12 +45,13 @@ class User implements UserInterface, \JsonSerializable
     private $password;
 
     /**
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"update_profile"})
      * @Assert\Length(
      *     max="20",
      *     min="2",
      *     maxMessage="First name must contain maximum 20 characters.",
-     *     minMessage="First name must contain minimum 2 characters."
+     *     minMessage="First name must contain minimum 2 characters.",
+     *     groups={"update_profile"}
      * )
      * @var string
      * @ORM\Column(type="string", length=255)
@@ -58,12 +59,13 @@ class User implements UserInterface, \JsonSerializable
     private $firstName;
 
     /**
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"update_profile"})
      * @Assert\Length(
      *     max="20",
      *     min="2",
      *     maxMessage="Last name must contain maximum 20 characters.",
-     *     minMessage="Last name must contain minimum 2 characters."
+     *     minMessage="Last name must contain minimum 2 characters.",
+     *     groups={"update_profile"}
      * )
      * @var string
      * @ORM\Column(type="string", length=255)
@@ -73,7 +75,8 @@ class User implements UserInterface, \JsonSerializable
     /**
      * @Assert\Length(
      *     max="255",
-     *     maxMessage="About must contain maximum 255 characters."
+     *     maxMessage="About must contain maximum 255 characters.",
+     *     groups={"update_profile"}
      * )
      * @var string
      * @ORM\Column(type="string", length=255, nullable=true)
