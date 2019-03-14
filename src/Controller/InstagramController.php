@@ -38,6 +38,16 @@ class InstagramController extends AbstractController
             /** @var \League\OAuth2\Client\Provider\InstagramResourceOwner $instagramUser */
             $instagramUser = $client->fetchUser();
 
+            if ($user = $this->getUser()) {
+                $user->setInstagramId($instagramUser->getId());
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->flush();
+
+                return $this->json($user);
+            }
+
             if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['instagramId' => $instagramUser->getId()])) {
                 $user->setPicture($instagramUser->getImageurl());
                 $user->setApiToken($userService->generateApiToken());

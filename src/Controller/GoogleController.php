@@ -38,6 +38,16 @@ class GoogleController extends AbstractController
             /** @var \League\OAuth2\Client\Provider\GoogleUser $googleUser */
             $googleUser = $client->fetchUser();
 
+            if ($user = $this->getUser()) {
+                $user->setGoogleId($googleUser->getId());
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->flush();
+
+                return $this->json($user);
+            }
+
             if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()])) {
                 $user->setPicture($googleUser->getAvatar());
                 $user->setApiToken($userService->generateApiToken());
