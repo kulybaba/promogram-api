@@ -9,6 +9,8 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -64,5 +66,34 @@ class InstagramController extends AbstractController
         } catch (IdentityProviderException $e) {
             return $this->json($e->getMessage());
         }
+    }
+
+    /**
+     * @Route("/disconnect/instagram", methods={"PUT"})
+     */
+    public function disconnectAction()
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        if (!$user->getInstagramId()) {
+            throw new HttpException(Response::HTTP_FORBIDDEN, 'Instagram account is not connected.');
+        }
+
+        if (!$user->getGoogleId()) {
+            throw new HttpException(Response::HTTP_FORBIDDEN, 'Forbidden to disconnect from only one connected social network.');
+        }
+
+        $user->setInstagramId(null);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Disconnected from Instagram account'
+        ]);
     }
 }
