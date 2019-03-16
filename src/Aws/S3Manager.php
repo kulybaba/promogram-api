@@ -28,15 +28,18 @@ class S3Manager extends AbstractController
     public function uploadPicture(User $user)
     {
         try {
+            $key = $this->prefix . '/' .  md5(uniqid()) . '.' . $this->pictureService->getPictureExtensionFromBinary($user->getContent());
+
             $result = $this->s3->putObject([
                 'Bucket' => $this->bucket,
-                'Key' => $this->prefix . '/' .  md5(uniqid()) . '.' . $this->pictureService->getPictureExtensionFromBinary($user->getContent()),
+                'Key' => $key,
                 'Body' => $user->getContent(),
                 'ACL' => 'public-read-write',
                 'ContentType' => $this->pictureService->getPictureExtensionFromBinary($user->getContent()),
             ]);
 
             $user->setPicture($result->get('ObjectURL'));
+            $user->setPictureKey($key);
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -46,10 +49,10 @@ class S3Manager extends AbstractController
         }
     }
 
-    public function deletePicture(string $pictureUrl)
+    public function deletePicture(string $pictureKey)
     {
         try {
-            $this->s3->deleteMatchingObjects($this->bucket, $this->prefix . '/' . $this->pictureService->getPictureName($pictureUrl));
+            $this->s3->deleteMatchingObjects($this->bucket, $pictureKey);
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,

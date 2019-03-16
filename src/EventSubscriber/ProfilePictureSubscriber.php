@@ -30,8 +30,8 @@ class ProfilePictureSubscriber implements EventSubscriber
         $user = $args->getObject();
 
         if ($user instanceof User && $user->getContent()) {
-            if ($user->getPicture() && $user->getPicture() != '/images/profile/default_picture.png') {
-                $this->s3Manager->deletePicture($user->getPicture());
+            if ($user->getPictureKey()) {
+                $this->s3Manager->deletePicture($user->getPictureKey());
             }
             $this->s3Manager->uploadPicture($user);
         }

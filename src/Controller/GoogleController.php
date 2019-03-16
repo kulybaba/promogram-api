@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Aws\S3Manager;
 use App\Entity\User;
 use App\Services\LoginService;
 use App\Services\UserService;
@@ -31,7 +32,7 @@ class GoogleController extends AbstractController
     /**
      * @Route("/connect/google/check", name="connect_google_check")
      */
-    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService)
+    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService, S3Manager $s3Manager)
     {
         /** @var \KnpU\OAuth2ClientBundle\Client\Provider\GoogleClient $client */
         $client = $clientRegistry->getClient('google');
@@ -51,6 +52,11 @@ class GoogleController extends AbstractController
             }
 
             if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()])) {
+                if ($user->getPictureKey()) {
+                    $s3Manager->deletePicture($user->getPictureKey());
+                    $user->setPictureKey(null);
+                }
+
                 $user->setPicture($googleUser->getAvatar());
                 $user->setApiToken($userService->generateApiToken());
                 $user->setGoogleId($googleUser->getId());

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Aws\S3Manager;
 use App\Entity\User;
 use App\Services\LoginService;
 use App\Services\UserService;
@@ -31,7 +32,7 @@ class InstagramController extends AbstractController
     /**
      * @Route("/connect/instagram/check", name="connect_instagram_check")
      */
-    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService)
+    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService, S3Manager $s3Manager)
     {
         /** @var \KnpU\OAuth2ClientBundle\Client\Provider\InstagramClient $client */
         $client = $clientRegistry->getClient('instagram');
@@ -51,6 +52,11 @@ class InstagramController extends AbstractController
             }
 
             if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['instagramId' => $instagramUser->getId()])) {
+                if ($user->getPictureKey()) {
+                    $s3Manager->deletePicture($user->getPictureKey());
+                    $user->setPictureKey(null);
+                }
+
                 $user->setPicture($instagramUser->getImageurl());
                 $user->setApiToken($userService->generateApiToken());
 

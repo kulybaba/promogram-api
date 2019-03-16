@@ -55,13 +55,13 @@ class ProfileController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $user);
 
         if (!$request->getContent()) {
-            throw new HttpException('400', 'Bad request');
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
         $this->serializer->deserialize($request->getContent(), User::class, JsonEncoder::FORMAT, ['object_to_populate' => $user]);
 
         if (count($this->validator->validate($user, null, ['update_profile']))) {
-            throw new HttpException('400', 'Bad request');
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
         $this->em->persist($user);
@@ -77,14 +77,16 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $this->denyAccessUnlessGranted('edit', $user);
+
         if (!$request->getContent()) {
-            throw new HttpException('400', 'Bad request');
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
         $picture = new \Imagick();
 
         if (!$picture->readImageBlob($request->getContent())) {
-            throw new HttpException('400', 'Bad request');
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
         $user->setContent($request->getContent());
@@ -104,7 +106,18 @@ class ProfileController extends AbstractController
      */
     public function deletePictureAction(User $user)
     {
-        $this->s3Manager->deletePicture($user->getPicture());
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        if ($user->getPicture() == $this->getParameter('default_profile_picture')) {
+            throw new HttpException(Response::HTTP_FORBIDDEN, 'No profile picture');
+        }
+
+        if ($user->getPictureKey()) {
+            $this->s3Manager->deletePicture($user->getPictureKey());
+            $user->setPictureKey(null);
+        }
 
         $user->setPicture($this->getParameter('default_profile_picture'));
 
