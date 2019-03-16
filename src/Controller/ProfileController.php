@@ -65,4 +65,33 @@ class ProfileController extends AbstractController
 
         return $this->json($user, Response::HTTP_OK, [], ['normalization' => 'profile']);
     }
+
+    /**
+     * @Route("/profile/{id}/change-picture", requirements={"id"="\d+"}, methods={"PUT"})
+     */
+    public function changePictureAction(Request $request, User $user)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        if (!$request->getContent()) {
+            throw new HttpException('400', 'Bad request');
+        }
+
+        $picture = new \Imagick();
+
+        if (!$picture->readImageBlob($request->getContent())) {
+            throw new HttpException('400', 'Bad request');
+        }
+
+        $user->setContent($request->getContent());
+
+        $this->em->getUnitOfWork()->scheduleForUpdate($user);
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Profile picture changed'
+        ]);
+    }
 }

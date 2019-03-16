@@ -162,6 +162,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $instagramId;
 
+    /**
+     * @var resource|string
+     */
+    private $content;
+
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
@@ -614,6 +619,18 @@ class User implements UserInterface, \JsonSerializable
     public function setInstagramId(?int $instagramId): self
     {
         $this->instagramId = $instagramId;
+
+        return $this;
+    }
+
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    public function setContent($content): self
+    {
+        $this->content = $content;
 
         return $this;
     }
