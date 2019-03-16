@@ -167,6 +167,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $content;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $pictureKey;
+
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
@@ -631,6 +636,18 @@ class User implements UserInterface, \JsonSerializable
     public function setContent($content): self
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getPictureKey(): ?string
+    {
+        return $this->pictureKey;
+    }
+
+    public function setPictureKey(?string $pictureKey): self
+    {
+        $this->pictureKey = $pictureKey;
 
         return $this;
     }

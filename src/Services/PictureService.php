@@ -12,11 +12,4 @@ class PictureService
 
         return $segments[1];
     }
-
-    public function getPictureName(string $pictureUrl) : string
-    {
-        $segments = explode('/', $pictureUrl);
-
-        return $segments[count($segments) - 1];
-    }
 }
