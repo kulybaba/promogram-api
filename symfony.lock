@@ -1,4 +1,7 @@
 {
+    "aws/aws-sdk-php": {
+        "version": "3.90.3"
+    },
     "behat/transliterator": {
         "version": "v1.2.0"
     },
@@ -127,6 +130,9 @@
     },
     "league/oauth2-instagram": {
         "version": "2.0.0"
+    },
+    "mtdowling/jmespath.php": {
+        "version": "2.4.0"
     },
     "nikic/php-parser": {
         "version": "v4.2.1"
@@ -274,6 +280,9 @@
             "version": "4.1",
             "ref": "0e548dd90adba18fabd4ef419b14d361fe4d6c74"
         }
+    },
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.10.0"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.10.0"
