@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Aws\S3Manager;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,11 +25,14 @@ class ProfileController extends AbstractController
 
     private $em;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $em)
+    private $s3Manager;
+
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $em, S3Manager $s3Manager)
     {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->em = $em;
+        $this->s3Manager = $s3Manager;
     }
 
     /**
@@ -92,6 +96,24 @@ class ProfileController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Profile picture changed'
+        ]);
+    }
+
+    /**
+     * @Route("/profile/{id}/delete-picture", requirements={"id"="\d+"}, methods={"PUT"})
+     */
+    public function deletePictureAction(User $user)
+    {
+        $this->s3Manager->deletePicture($user->getPicture());
+
+        $user->setPicture($this->getParameter('default_profile_picture'));
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Profile picture deleted'
         ]);
     }
 }
