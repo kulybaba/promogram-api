@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Normalizer\PostNormalizer;
 use App\Security\Voter\PostVoter;
 use App\Services\ValidateService;
 use Knp\Component\Pager\PaginatorInterface;
@@ -57,7 +58,7 @@ class PostController extends AbstractController
     {
         $this->denyAccessUnlessGranted(PostVoter::POST_VIEW, $post);
 
-        return $this->json($post);
+        return $this->json($post,200,[],[AbstractNormalizer::GROUPS => [PostNormalizer::DETAILED_GROUP]]);
     }
 
     /**
