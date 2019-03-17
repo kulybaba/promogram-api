@@ -9,10 +9,14 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
+ * @ORM\EntityListeners({"App\Listener\PostListener"})
  */
 class Post
 {
     use TimestampableEntity;
+
+    const CUSTOMER_TYPE = "Customer type";
+    const COMPANY_TYPE = "Company type";
 
     /**
      * @ORM\Id()
@@ -51,6 +55,11 @@ class Post
      * @ORM\OneToMany(targetEntity="App\Entity\Likes", mappedBy="post", orphanRemoval=true)
      */
     private $likes;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $type;
 
     public function __construct()
     {
@@ -184,6 +193,18 @@ class Post
                 $like->setPost(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }
