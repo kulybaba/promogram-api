@@ -24,7 +24,7 @@ class PostNormalizer implements NormalizerInterface
 
         if (isset($context[AbstractNormalizer::GROUPS]) && in_array($this::GROUP_DETAILS, $context[AbstractNormalizer::GROUPS])) {
             $data['text'] = $post->getText();
-            $data['user'] = $post->getUser();
+            $data['user'] = $post->getAuthor();
             if ($post->getPicture()) {
                 $data['picture'] = $post->getPicture();
             }

@@ -498,7 +498,7 @@ class User implements UserInterface, \JsonSerializable
     {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
-            $post->setUser($this);
+            $post->setAuthor($this);
         }
 
         return $this;
@@ -509,8 +509,8 @@ class User implements UserInterface, \JsonSerializable
         if ($this->posts->contains($post)) {
             $this->posts->removeElement($post);
             // set the owning side to null (unless already changed)
-            if ($post->getUser() === $this) {
-                $post->setUser(null);
+            if ($post->getAuthor() === $this) {
+                $post->setAuthor(null);
             }
         }
 

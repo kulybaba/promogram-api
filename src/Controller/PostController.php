@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Entity\User;
 use App\Normalizer\PostNormalizer;
 use App\Security\Voter\PostVoter;
 use App\Services\ValidateService;
@@ -72,12 +73,25 @@ class PostController extends AbstractController
         $this->denyAccessUnlessGranted(PostVoter::POST_ADD, $post);
 
         $post = $this->serializer->deserialize($request->getContent(), $post, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $post->setUser($this->getUser());
+        $post->setAuthor($this->getUser());
         $this->validateService->validate($post);
 
         $this->getDoctrine()->getManager()->persist($post);
         $this->getDoctrine()->getManager()->flush();
 
         return $this->json($post);
+    }
+
+    /**
+     * @Route("/user/{id}/posts", methods={"GET"})
+     */
+    public function showPostsByUserAction(User $user)
+    {
+        /** @var Post $post */
+        $posts = $this->getDoctrine()->getRepository(Post::class)->findBy(['author' => $user]);
+
+        $this->denyAccessUnlessGranted(PostVoter::POST_VIEW);
+
+        return $this->json($posts,200,[]);
     }
 }
