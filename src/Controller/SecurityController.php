@@ -7,8 +7,10 @@ use App\Entity\User;
 use App\Services\LoginService;
 use App\Services\UserService;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Client\Provider\FacebookClient;
 use KnpU\OAuth2ClientBundle\Client\Provider\GoogleClient;
 use KnpU\OAuth2ClientBundle\Client\Provider\InstagramClient;
+use League\OAuth2\Client\Provider\FacebookUser;
 use League\OAuth2\Client\Provider\GoogleUser;
 use League\OAuth2\Client\Provider\InstagramResourceOwner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,14 +38,20 @@ class SecurityController extends AbstractController
     private $passwordEncoder;
 
     /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
      * SecurityController constructor.
      *
      * @param SerializerInterface $serializer
      */
-    public function __construct(SerializerInterface $serializer, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(SerializerInterface $serializer, UserPasswordEncoderInterface $passwordEncoder, UserService $userService)
     {
         $this->serializer = $serializer;
         $this->passwordEncoder = $passwordEncoder;
+        $this->userService = $userService;
     }
 
     /**
@@ -63,9 +71,7 @@ class SecurityController extends AbstractController
             if ($this->passwordEncoder->isPasswordValid($user, $data->getPassword())) {
                 $user->setApiToken($this->userService->generateApiToken());
 
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($user);
-                $em->flush();
+                $this->getDoctrine()->getManager()->flush();
 
                 return $this->json($user);
             }
@@ -98,9 +104,7 @@ class SecurityController extends AbstractController
         if ($user = $this->getUser()) {
             $user->setGoogleId($googleUser->getId());
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+            $this->getDoctrine()->getManager()->flush();
 
             return $this->json($user);
         }
@@ -115,9 +119,7 @@ class SecurityController extends AbstractController
             $user->setApiToken($userService->generateApiToken());
             $user->setGoogleId($googleUser->getId());
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+            $this->getDoctrine()->getManager()->flush();
 
             return $this->json($user);
         }
@@ -144,9 +146,7 @@ class SecurityController extends AbstractController
 
         $user->setGoogleId(null);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+        $this->getDoctrine()->getManager()->flush();
 
         return $this->json([
             'success' => true,
@@ -178,9 +178,7 @@ class SecurityController extends AbstractController
         if ($user = $this->getUser()) {
             $user->setInstagramId($instagramUser->getId());
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+            $this->getDoctrine()->getManager()->flush();
 
             return $this->json($user);
         }
@@ -194,9 +192,7 @@ class SecurityController extends AbstractController
             $user->setPicture($instagramUser->getImageurl());
             $user->setApiToken($userService->generateApiToken());
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+            $this->getDoctrine()->getManager()->flush();
 
             return $this->json($user);
         }
@@ -223,13 +219,84 @@ class SecurityController extends AbstractController
 
         $user->setInstagramId(null);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+        $this->getDoctrine()->getManager()->flush();
 
         return $this->json([
             'success' => true,
             'message' => 'Disconnected from Instagram account'
+        ]);
+    }
+
+    /**
+     * @Route("/login/facebook", name="login_facebook_connect")
+     */
+    public function connectAction(ClientRegistry $clientRegistry)
+    {
+        return $clientRegistry
+            ->getClient('facebook_main')
+            ->redirect([
+                'public_profile', 'email'
+            ]);
+    }
+
+    /**
+     * @Route("/login/facebook/check", name="login_facebook_check")
+     */
+    public function connectFacebookCheckAction(ClientRegistry $clientRegistry, UserService $userService, LoginService $loginService, S3Manager $s3Manager)
+    {
+        /** @var FacebookClient $client */
+        $client = $clientRegistry->getClient('facebook_main');
+
+        /** @var FacebookUser $facebookUser */
+        $facebookUser = $client->fetchUser();
+
+        /** @var User $user */
+        if ($user = $this->getUser()) {
+            $user->setFacebookId($facebookUser->getId());
+
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->json($user);
+        }
+
+        if ($user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['facebookId' => $facebookUser->getId()])) {
+            if ($user->getPictureKey()) {
+                $s3Manager->deletePicture($user->getPictureKey());
+                $user->setPictureKey(null);
+            }
+
+            $user->setPicture($facebookUser->getPictureUrl());
+            $user->setApiToken($userService->generateApiToken());
+
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->json($user);
+        }
+
+        return $this->json($loginService->facebookLogin($facebookUser));
+    }
+
+    /**
+     * @Route("/logout/facebook", methods={"PUT"})
+     */
+    public function disconnectFacebookAction()
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user->getFacebookId()) {
+            throw new HttpException(Response::HTTP_FORBIDDEN, 'Facebook account is not connected.');
+        }
+
+        $user->setFacebookId(null);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Disconnected from Facebook account'
         ]);
     }
 }

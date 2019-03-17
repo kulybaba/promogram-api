@@ -172,6 +172,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $pictureKey;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $facebookId;
+
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
@@ -648,6 +653,18 @@ class User implements UserInterface, \JsonSerializable
     public function setPictureKey(?string $pictureKey): self
     {
         $this->pictureKey = $pictureKey;
+
+        return $this;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): self
+    {
+        $this->facebookId = $facebookId;
 
         return $this;
     }
