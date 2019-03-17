@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Aws\S3Manager;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Imagick;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -83,13 +84,13 @@ class ProfileController extends AbstractController
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
-        $picture = new \Imagick();
+        $picture = new Imagick();
 
         if (!$picture->readImageBlob($request->getContent())) {
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
         }
 
-        $user->setContent($request->getContent());
+        $user->setPictureContent($request->getContent());
 
         $this->em->getUnitOfWork()->scheduleForUpdate($user);
         $this->em->persist($user);

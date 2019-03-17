@@ -29,11 +29,15 @@ class ProfilePictureSubscriber implements EventSubscriber
         /** @var User $user */
         $user = $args->getObject();
 
-        if ($user instanceof User && $user->getContent()) {
+        if ($user instanceof User && $user->getPictureContent()) {
             if ($user->getPictureKey()) {
                 $this->s3Manager->deletePicture($user->getPictureKey());
             }
-            $this->s3Manager->uploadPicture($user);
+
+            $pictureParamsArray = $this->s3Manager->uploadPicture($user->getPictureContent());
+
+            $user->setPicture($pictureParamsArray['picture']);
+            $user->setPictureKey($pictureParamsArray['key']);
         }
     }
 }

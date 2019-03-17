@@ -165,7 +165,7 @@ class User implements UserInterface, \JsonSerializable
     /**
      * @var resource|string
      */
-    private $content;
+    private $pictureContent;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -633,14 +633,14 @@ class User implements UserInterface, \JsonSerializable
         return $this;
     }
 
-    public function getContent()
+    public function getPictureContent()
     {
-        return $this->content;
+        return $this->pictureContent;
     }
 
-    public function setContent($content): self
+    public function setPictureContent($pictureContent): self
     {
-        $this->content = $content;
+        $this->pictureContent = $pictureContent;
 
         return $this;
     }

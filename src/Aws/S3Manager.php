@@ -2,7 +2,8 @@
 
 namespace App\Aws;
 
-use App\Entity\User;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Services\PictureService;
 use Aws\S3\S3Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,22 +26,29 @@ class S3Manager extends AbstractController
         $this->pictureService = $pictureService;
     }
 
-    public function uploadPicture(User $user)
+    /**
+     * @var resource|string
+     *
+     * @return array|JsonResponse
+     */
+    public function uploadPicture(string $picture)
     {
         try {
-            $key = $this->prefix . '/' .  md5(uniqid()) . '.' . $this->pictureService->getPictureExtensionFromBinary($user->getContent());
+            $key = $this->prefix . '/' .  md5(uniqid()) . '.' . $this->pictureService->getPictureExtensionFromBinary($picture);
 
             $result = $this->s3->putObject([
                 'Bucket' => $this->bucket,
                 'Key' => $key,
-                'Body' => $user->getContent(),
+                'Body' => $picture,
                 'ACL' => 'public-read-write',
-                'ContentType' => $this->pictureService->getPictureExtensionFromBinary($user->getContent()),
+                'ContentType' => $this->pictureService->getPictureExtensionFromBinary($picture),
             ]);
 
-            $user->setPicture($result->get('ObjectURL'));
-            $user->setPictureKey($key);
-        } catch (\Exception $e) {
+            return [
+                'picture' => $result->get('ObjectURL'),
+                'key' => $key
+            ];
+        } catch (Exception $e) {
             return $this->json([
                 'success' => false,
                 'code' => $e->getCode(),
