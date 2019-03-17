@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -41,17 +40,19 @@ class UserController extends AbstractController
     private $emailService;
 
     /**
-     * @var UserPasswordEncoderInterface
+     * UserController constructor.
+     *
+     * @param SerializerInterface $serializer
+     * @param ValidatorInterface $validator
+     * @param UserService $userService
+     * @param EmailService $emailService
      */
-    private $passwordEncoder;
-
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, UserService $userService, EmailService $emailService, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, UserService $userService, EmailService $emailService)
     {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->userService = $userService;
         $this->emailService = $emailService;
-        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
@@ -82,33 +83,5 @@ class UserController extends AbstractController
         $this->emailService->sendRegistrationEmail($user);
 
         return $this->json($user);
-    }
-
-    /**
-     * @Route("/login", methods={"POST"})
-     */
-    public function loginAction(Request $request)
-    {
-        if (!$request->getContent()) {
-            throw new HttpException('400', 'Bad request');
-        }
-
-        $data = $this->serializer->deserialize($request->getContent(), User::class, JsonEncoder::FORMAT);
-
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['email' => $data->getEmail()]);
-
-        if ($user instanceof User) {
-            if ($this->passwordEncoder->isPasswordValid($user, $data->getPassword())) {
-                $user->setApiToken($this->userService->generateApiToken());
-
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($user);
-                $em->flush();
-
-                return $this->json($user);
-            }
-        }
-
-        throw new HttpException('400', 'Bad request');
     }
 }
