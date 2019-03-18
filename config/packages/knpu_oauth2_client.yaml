@@ -12,7 +12,7 @@ knpu_oauth2_client:
             client_secret: '%env(OAUTH_INSTAGRAM_CLIENT_SECRET)%'
             redirect_route: login_instagram_check
             redirect_params: {}
-        facebook_main:
+        facebook:
             type: facebook
             client_id: '%env(OAUTH_FACEBOOK_ID)%'
             client_secret: '%env(OAUTH_FACEBOOK_SECRET)%'
