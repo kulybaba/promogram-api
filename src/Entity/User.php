@@ -604,8 +604,9 @@ class User implements UserInterface, \JsonSerializable
             'email' => $this->getEmail(),
             'password' => $this->getPassword(),
             'api_token' => $this->getApiToken(),
-            'google_id' => $this->getGoogleId(),
-            'instagram_id' => $this->getInstagramId()
+            'googleId' => $this->getGoogleId(),
+            'instagramId' => $this->getInstagramId(),
+            'facebookId' => $this->getFacebookId()
         ];
     }
 

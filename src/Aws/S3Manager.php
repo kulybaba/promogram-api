@@ -3,21 +3,39 @@
 namespace App\Aws;
 
 use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Services\PictureService;
 use Aws\S3\S3Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class S3Manager extends AbstractController
 {
+    /**
+     * @var S3Client $s3
+     */
     private $s3;
 
+    /**
+     * @var string $bucket
+     */
     private $bucket;
 
+    /**
+     * @var string $prefix
+     */
     private $prefix;
 
+    /**
+     * @var PictureService $pictureService
+     */
     private $pictureService;
 
+    /**
+     * S3Manager constructor.
+     * @param S3Client $s3
+     * @param $bucket
+     * @param $prefix
+     * @param PictureService $pictureService
+     */
     public function __construct(S3Client $s3, $bucket, $prefix, PictureService $pictureService)
     {
         $this->s3 = $s3;
@@ -26,11 +44,6 @@ class S3Manager extends AbstractController
         $this->pictureService = $pictureService;
     }
 
-    /**
-     * @var resource|string
-     *
-     * @return array|JsonResponse
-     */
     public function uploadPicture(string $picture)
     {
         try {
@@ -45,7 +58,7 @@ class S3Manager extends AbstractController
             ]);
 
             return [
-                'picture' => $result->get('ObjectURL'),
+                'pictureUrl' => $result->get('ObjectURL'),
                 'key' => $key
             ];
         } catch (Exception $e) {
@@ -61,7 +74,7 @@ class S3Manager extends AbstractController
     {
         try {
             $this->s3->deleteMatchingObjects($this->bucket, $pictureKey);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->json([
                 'success' => false,
                 'code' => $e->getCode(),
