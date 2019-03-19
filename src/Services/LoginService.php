@@ -65,9 +65,8 @@ class LoginService extends AbstractController
     public function facebookLogin(FacebookUser $facebookUser)
     {
         $user = new User();
-        $segments = explode(' ', $facebookUser->getName());
-        $user->setFirstName($segments[0]);
-        $user->setLastName($segments[1]);
+        $user->setFirstName($facebookUser->getFirstName());
+        $user->setLastName($facebookUser->getLastName());
         $user->setPicture($facebookUser->getPictureUrl());
         $user->setPlainPassword($this->userService->generatePassword());
         $user->setPassword($this->userService->encodePassword($user));

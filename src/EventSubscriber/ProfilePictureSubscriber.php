@@ -10,8 +10,15 @@ use Doctrine\ORM\Events;
 
 class ProfilePictureSubscriber implements EventSubscriber
 {
+    /**
+     * @var S3Manager $s3Manager
+     */
     private $s3Manager;
 
+    /**
+     * ProfilePictureSubscriber constructor.
+     * @param S3Manager $s3Manager
+     */
     public function __construct(S3Manager $s3Manager)
     {
         $this->s3Manager = $s3Manager;
@@ -34,10 +41,10 @@ class ProfilePictureSubscriber implements EventSubscriber
                 $this->s3Manager->deletePicture($user->getPictureKey());
             }
 
-            $pictureParamsArray = $this->s3Manager->uploadPicture($user->getPictureContent());
+            $result = $this->s3Manager->uploadPicture($user->getPictureContent());
 
-            $user->setPicture($pictureParamsArray['picture']);
-            $user->setPictureKey($pictureParamsArray['key']);
+            $user->setPicture($result['pictureUrl']);
+            $user->setPictureKey($result['key']);
         }
     }
 }

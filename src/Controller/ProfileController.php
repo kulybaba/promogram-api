@@ -20,14 +20,33 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ProfileController extends AbstractController
 {
+    /**
+     * @var SerializerInterface $serializer
+     */
     private $serializer;
 
+    /**
+     * @var ValidatorInterface $validator
+     */
     private $validator;
 
+    /**
+     * @var EntityManagerInterface $em
+     */
     private $em;
 
+    /**
+     * @var S3Manager $s3Manager
+     */
     private $s3Manager;
 
+    /**
+     * ProfileController constructor.
+     * @param SerializerInterface $serializer
+     * @param ValidatorInterface $validator
+     * @param EntityManagerInterface $em
+     * @param S3Manager $s3Manager
+     */
     public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $em, S3Manager $s3Manager)
     {
         $this->serializer = $serializer;
