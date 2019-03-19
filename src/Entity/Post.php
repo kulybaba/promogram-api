@@ -29,6 +29,7 @@ class Post
      * @ORM\Column(type="string", length=255)
      */
     private $picture;
+    private $pictureContent;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -60,6 +61,11 @@ class Post
      * @ORM\Column(type="string", length=50)
      */
     private $type;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $pictureKey;
 
     public function __construct()
     {
@@ -205,6 +211,37 @@ class Post
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPictureContent()
+    {
+        return $this->pictureContent;
+    }
+
+    /**
+     * @param $pictureContent
+     * @return Post
+     */
+    public function setPictureContent($pictureContent): self
+    {
+        $this->pictureContent = $pictureContent;
+
+        return $this;
+    }
+
+    public function getPictureKey(): ?string
+    {
+        return $this->pictureKey;
+    }
+
+    public function setPictureKey(?string $pictureKey): self
+    {
+        $this->pictureKey = $pictureKey;
 
         return $this;
     }

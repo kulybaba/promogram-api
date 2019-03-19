@@ -13,6 +13,8 @@ class PostVoter extends Voter
 
     const POST_VIEW = 'POST_VIEW';
 
+    const POST_EDIT = 'POST_EDIT';
+
     protected function supports($attribute, $subject)
     {
         return in_array($attribute, [self::POST_ADD, self::POST_VIEW])
@@ -31,6 +33,8 @@ class PostVoter extends Voter
             case self::POST_ADD:
                 return true;
             case self::POST_VIEW:
+                return true;
+            case self::POST_EDIT:
                 return true;
         }
 

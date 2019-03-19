@@ -7,6 +7,9 @@ use App\Entity\User;
 use App\Normalizer\PostNormalizer;
 use App\Security\Voter\PostVoter;
 use App\Services\ValidateService;
+use Imagick;
+use Symfony\Component\HttpFoundation\Response;
+use App\Exception\JsonHttpException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -93,5 +96,32 @@ class PostController extends AbstractController
         $this->denyAccessUnlessGranted(PostVoter::POST_VIEW);
 
         return $this->json($posts,200,[]);
+    }
+
+    /**
+     * @Route("/posts/{id}", methods={"PUT"})
+     */
+    public function updatePictureAction(Request $request, Post $post)
+    {
+        $this->denyAccessUnlessGranted(PostVoter::POST_EDIT, $post);
+
+        if (!$request->getContent()) {
+            throw new JsonHttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
+        }
+
+        $picture = new Imagick();
+
+        if (!$picture->readImageBlob($request->getContent())) {
+            throw new JsonHttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
+        }
+
+        $post->setPictureContent($request->getContent());
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Profile picture has been changed successfully.'
+        ]);
     }
 }
