@@ -13,6 +13,10 @@ class CommentVoter extends Voter
 
     const COMMENT_VIEW = 'COMMENT_VIEW';
 
+    const COMMENT_DELETE = 'COMMENT_DELETE';
+
+    const COMMENT_EDIT = 'COMMENT_EDIT';
+
     protected function supports($attribute, $subject)
     {
         return in_array($attribute, [self::COMMENT_ADD, self::COMMENT_VIEW])
@@ -31,6 +35,10 @@ class CommentVoter extends Voter
             case self::COMMENT_ADD:
                 return true;
             case self::COMMENT_VIEW:
+                return true;
+            case self::COMMENT_DELETE:
+                return true;
+            case self::COMMENT_EDIT:
                 return true;
         }
 

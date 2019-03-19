@@ -27,3 +27,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+            GedmoSoftdeleteable:
+                type: annotation
+                prefix: Gedmo\Softdeleteable\Entity
+                dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/SoftDeleteable"
+                is_bundle: false
+        filters:
+            GedmoSoftdeleteable_filter:
+                class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
+                enabled: true

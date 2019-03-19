@@ -6,7 +6,6 @@ use App\Entity\Comment;
 use App\Entity\Post;
 use App\Exception\JsonHttpException;
 use App\Security\Voter\CommentVoter;
-use App\Security\Voter\PostVoter;
 use App\Services\ValidateService;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api")
@@ -51,11 +49,15 @@ class CommentController extends AbstractController
         if (!$postId) {
             throw new JsonHttpException(400, JsonHttpException::REQUEST_ERROR);
         }
+
         $post = $this->getDoctrine()->getRepository(Post::class)->findOneBy(['id' => $postId]);
+        if (!$post) {
+            throw new JsonHttpException(400, JsonHttpException::REQUEST_ERROR);
+        }
 
         $comment = $this->serializer->deserialize($request->getContent(), $comment, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $comment->setAuthor($this->getUser())
-            ->setPost($post);
+        $comment->setPost($post)
+            ->setUser($this->getUser());
         $this->validateService->validate($comment);
 
         $this->getDoctrine()->getManager()->persist($comment);
@@ -77,18 +79,44 @@ class CommentController extends AbstractController
     /**
      * @Route("/posts/{post}/comments/", methods={"GET"})
      */
-    public function showCommentByPostAction(Request $request, Post $post, PaginatorInterface $paginator)
+    public function showCommentByPostAction(Request $request, PaginatorInterface $paginator, Post $post)
     {
         $this->denyAccessUnlessGranted(CommentVoter::COMMENT_VIEW);
 
-        $startIdParam = $request->query->has('start_id') ?: 0;
-        $startId = $startIdParam > 0 ?: 1;
-        $commentsByPageParam = $request->query->has('comments_by_page') ?: 0;
-        $commentsByPage = $commentsByPageParam > 0 ?: 10;
+        $startId = $request->query->has('start_id') && ($request->query->get('start_id') > 0) ? $request->query->get('start_id') : 1;
+        $commentsByPage = $request->query->has('comments_by_page') && ($request->query->get('comments_by_page') > 0) ? $request->query->get('comments_by_page') : 10;
 
         $commentsRepo = $this->getDoctrine()->getRepository(Comment::class);
         $comments = $commentsRepo->selectByPostId($post->getId(), $startId);
 
         return $this->json($paginator->paginate($comments, 1, $commentsByPage));
+    }
+
+    /**
+     * @Route("/comments/{id}", methods={"DELETE"})
+     */
+    public function deleteCommentByIdAction(Comment $comment)
+    {
+        $this->denyAccessUnlessGranted(CommentVoter::COMMENT_DELETE, $comment);
+
+        $this->getDoctrine()->getManager()->remove($comment);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json('ok');
+    }
+
+    /**
+     * @Route("/comments/{id}", methods={"PUT"})
+     */
+    public function editCommentAction(Request $request, Comment $comment)
+    {
+        $this->denyAccessUnlessGranted(CommentVoter::COMMENT_EDIT, $comment);
+
+        $comment = $this->serializer->deserialize($request->getContent(), $comment, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $this->validateService->validate($comment);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json('ok');
     }
 }
