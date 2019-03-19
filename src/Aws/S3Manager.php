@@ -59,6 +59,14 @@ class S3Manager extends AbstractController
 
     public function deletePicture(string $pictureKey)
     {
+        if (!$pictureKey) {
+            return $this->json([
+                'success' => false,
+                'code' => 400,
+                'message' => 'Picture not found'
+            ]);
+        }
+
         try {
             $this->s3->deleteMatchingObjects($this->bucket, $pictureKey);
         } catch (\Exception $e) {
