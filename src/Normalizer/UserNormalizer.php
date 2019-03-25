@@ -30,7 +30,10 @@ class UserNormalizer implements NormalizerInterface
                         'picture' => $user->getPicture(),
                         'googleId' => $user->getGoogleId(),
                         'instagramId' => $user->getInstagramId(),
-                        'coupons' => count($user->getCoupons())
+                        'facebookId' => $user->getFacebookId(),
+                        'coupons' => count($user->getCoupons()),
+                        'followers' => count($user->getFollowers()),
+                        'following' => count($user->getFollowing())
                      ];
                 case self::ROLE_RETAILER:
                     return [
@@ -41,7 +44,10 @@ class UserNormalizer implements NormalizerInterface
                         'picture' => $user->getPicture(),
                         'googleId' => $user->getGoogleId(),
                         'instagramId' => $user->getInstagramId(),
-                        'company' => count($user->getCompany())
+                        'facebookId' => $user->getFacebookId(),
+                        'company' => count($user->getCompany()),
+                        'followers' => count($user->getFollowers()),
+                        'following' => count($user->getFollowing())
                     ];
                 case self::ROLE_ADMIN:
                     return [
@@ -52,9 +58,11 @@ class UserNormalizer implements NormalizerInterface
                         'picture' => $user->getPicture(),
                         'googleId' => $user->getGoogleId(),
                         'instagramId' => $user->getInstagramId(),
+                        'facebookId' => $user->getFacebookId(),
                         'company' => count($user->getCompany()),
-                        'coupons' => count($user->getCoupons())
-
+                        'coupons' => count($user->getCoupons()),
+                        'followers' => count($user->getFollowers()),
+                        'following' => count($user->getFollowing())
                     ];
             }
         }

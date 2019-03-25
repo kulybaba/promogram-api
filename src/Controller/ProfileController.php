@@ -149,4 +149,24 @@ class ProfileController extends AbstractController
             'message' => 'Profile picture deleted'
         ]);
     }
+
+    /**
+     * @Route("/profile/{id}/followers", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function followersAction(User $user)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        return $this->json(['followers' => $user->getFollowers()], Response::HTTP_OK, [], ['normalization' => 'profile']);
+    }
+
+    /**
+     * @Route("/profile/{id}/following", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function followingAction(User $user)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        return $this->json(['following' => $user->getFollowing()], Response::HTTP_OK, [], ['normalization' => 'profile']);
+    }
 }
