@@ -238,7 +238,7 @@ class Company implements \JsonSerializable
             'address' => $this->getAddress(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
-            'user' => $this->getUser()
+            'userId' => $this->getUser()->getId()
         ];
     }
 }
