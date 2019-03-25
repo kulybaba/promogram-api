@@ -7,17 +7,20 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class ProfileVoter extends Voter
+class FollowVoter extends Voter
 {
-    const EDIT = 'profile_edit';
+    const FOLLOW = 'follow';
+
+    const UNFOLLOW = 'unfollow';
 
     protected function supports($attribute, $subject)
     {
-        return in_array($attribute, [self::EDIT]) && $subject instanceof User;
+        return in_array($attribute, [self::FOLLOW, self::UNFOLLOW]) && $subject instanceof User;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
+        /** @var User $user */
         $user = $token->getUser();
 
         if (!$user instanceof UserInterface) {
@@ -25,15 +28,22 @@ class ProfileVoter extends Voter
         }
 
         switch ($attribute) {
-            case self::EDIT:
-                return $this->canEdit($subject, $user);
+            case self::FOLLOW:
+                return $this->canFollow($subject, $user);
+            case self::UNFOLLOW:
+                return $this->canUnfollow($subject, $user);
         }
 
         return false;
     }
 
-    private function canEdit(User $subject, User $user)
+    public function canFollow(User $subject, User $user)
     {
-        return $user === $subject;
+        return $subject !== $user;
+    }
+
+    public function canUnfollow(User $subject, User $user)
+    {
+        return $subject !== $user;
     }
 }

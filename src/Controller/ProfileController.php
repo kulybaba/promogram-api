@@ -72,7 +72,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if (!$request->getContent()) {
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
@@ -97,7 +97,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if (!$request->getContent()) {
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
@@ -128,7 +128,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if ($user->getPicture() == $this->getParameter('default_profile_picture')) {
             throw new HttpException(Response::HTTP_FORBIDDEN, 'No profile picture');
