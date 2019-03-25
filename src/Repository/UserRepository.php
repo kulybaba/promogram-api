@@ -19,6 +19,15 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    public function findFollow(int $followersId, int $followingId)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM user_user u WHERE u.user_source = :followersId AND u.user_target = :followingId';
+        $stmp = $conn->prepare($sql);
+        $stmp->execute(['followersId' => $followersId, 'followingId' => $followingId]);
+        return $stmp->fetch();
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

@@ -72,7 +72,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if (!$request->getContent()) {
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
@@ -97,7 +97,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if (!$request->getContent()) {
             throw new HttpException(Response::HTTP_BAD_REQUEST, 'Bad request');
@@ -128,7 +128,7 @@ class ProfileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('profile_edit', $user);
 
         if ($user->getPicture() == $this->getParameter('default_profile_picture')) {
             throw new HttpException(Response::HTTP_FORBIDDEN, 'No profile picture');
@@ -148,5 +148,25 @@ class ProfileController extends AbstractController
             'success' => true,
             'message' => 'Profile picture deleted'
         ]);
+    }
+
+    /**
+     * @Route("/profile/{id}/followers", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function followersAction(User $user)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        return $this->json(['followers' => $user->getFollowers()], Response::HTTP_OK, [], ['normalization' => 'profile']);
+    }
+
+    /**
+     * @Route("/profile/{id}/following", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function followingAction(User $user)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        return $this->json(['following' => $user->getFollowing()], Response::HTTP_OK, [], ['normalization' => 'profile']);
     }
 }
