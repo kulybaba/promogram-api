@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     default_profile_picture: '/images/profile/default_picture.png'
+    default_company_picture: '/images/company/default_picture.png'
 
 services:
     # default configuration for services in *this* file
@@ -28,6 +29,10 @@ services:
     # please note that last definitions always *replace* previous ones
 
     App\EventSubscriber\ProfilePictureSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+
+    App\EventSubscriber\CompanyPictureSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
 
