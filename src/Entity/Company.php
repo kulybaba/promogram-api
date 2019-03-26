@@ -83,8 +83,26 @@ class Company implements \JsonSerializable
      */
     private $posts;
 
+    /**
+     * @Assert\NotBlank()
+     * @var string
+     * @ORM\Column(type="string", length=255)
+     */
+    private $picture;
+
+    /**
+     * @var resource|string
+     */
+    private $pictureContent;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $pictureKey;
+
     public function __construct()
     {
+        $this->picture = '/images/company/default_picture.png';
         $this->coupons = new ArrayCollection();
         $this->posts = new ArrayCollection();
     }
@@ -238,7 +256,44 @@ class Company implements \JsonSerializable
             'address' => $this->getAddress(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
+            'picture' => $this->getPicture(),
             'userId' => $this->getUser()->getId()
         ];
+    }
+
+    public function getPicture(): ?string
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(string $picture): self
+    {
+        $this->picture = $picture;
+
+        return $this;
+    }
+
+    public function getPictureContent(): ?string
+    {
+        return $this->pictureContent;
+    }
+
+    public function setPictureContent(?string $pictureContent): self
+    {
+        $this->pictureContent = $pictureContent;
+
+        return $this;
+    }
+
+    public function getPictureKey(): ?string
+    {
+        return $this->pictureKey;
+    }
+
+    public function setPictureKey(?string $pictureKey): self
+    {
+        $this->pictureKey = $pictureKey;
+
+        return $this;
     }
 }
