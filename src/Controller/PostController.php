@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Likes;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Normalizer\PostNormalizer;
@@ -122,6 +123,56 @@ class PostController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Profile picture has been changed successfully.'
+        ]);
+    }
+
+    /**
+     * @Route("/posts/{id}/like", requirements={"id"="\d+"}, methods={"POST"})
+     */
+    public function likeAction(Post $post)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        if ($this->getDoctrine()->getRepository(Likes::class)->findOneBy(['post' => $post->getId(), 'user' => $user->getId()])) {
+            throw new JsonHttpException(Response::HTTP_FORBIDDEN, 'You are already liked this post');
+        }
+
+        $like = new Likes();
+        $like->setPost($post);
+        $like->setUser($user);
+
+        $this->getDoctrine()->getManager()->persist($like);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Post is liked'
+        ]);
+    }
+
+    /**
+     * @Route("/posts/{id}/unlike", requirements={"id"="\d+"}, methods={"DELETE"})
+     */
+    public function unlikeAction(Post $post)
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        $like = $this->getDoctrine()->getRepository(Likes::class)->findOneBy(['post' => $post->getId(), 'user' => $user->getId()]);
+
+        if (!$like) {
+            throw new JsonHttpException(Response::HTTP_FORBIDDEN, "You don't liked this post");
+        }
+
+        $this->getDoctrine()->getManager()->remove($like);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Post is unliked'
         ]);
     }
 }
