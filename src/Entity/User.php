@@ -121,11 +121,6 @@ class User implements UserInterface, \JsonSerializable
     private $points;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Coupon", mappedBy="user", orphanRemoval=true)
-     */
-    private $coupons;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="user", orphanRemoval=true)
      */
     private $posts;
@@ -177,6 +172,11 @@ class User implements UserInterface, \JsonSerializable
      */
     private $facebookId;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Coupon", mappedBy="user")
+     */
+    private $coupons;
+
     public function __construct()
     {
         $this->roles = ['ROLE_RETAILER'];
@@ -185,10 +185,10 @@ class User implements UserInterface, \JsonSerializable
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->points = new ArrayCollection();
-        $this->coupons = new ArrayCollection();
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->likes = new ArrayCollection();
+        $this->coupons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -456,37 +456,6 @@ class User implements UserInterface, \JsonSerializable
     }
 
     /**
-     * @return Collection|Coupon[]
-     */
-    public function getCoupons(): Collection
-    {
-        return $this->coupons;
-    }
-
-    public function addCoupon(Coupon $coupon): self
-    {
-        if (!$this->coupons->contains($coupon)) {
-            $this->coupons[] = $coupon;
-            $coupon->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCoupon(Coupon $coupon): self
-    {
-        if ($this->coupons->contains($coupon)) {
-            $this->coupons->removeElement($coupon);
-            // set the owning side to null (unless already changed)
-            if ($coupon->getUser() === $this) {
-                $coupon->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|Post[]
      */
     public function getPosts(): Collection
@@ -666,6 +635,34 @@ class User implements UserInterface, \JsonSerializable
     public function setFacebookId(?string $facebookId): self
     {
         $this->facebookId = $facebookId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Coupon[]
+     */
+    public function getCoupons(): Collection
+    {
+        return $this->coupons;
+    }
+
+    public function addCoupon(Coupon $coupon): self
+    {
+        if (!$this->coupons->contains($coupon)) {
+            $this->coupons[] = $coupon;
+            $coupon->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoupon(Coupon $coupon): self
+    {
+        if ($this->coupons->contains($coupon)) {
+            $this->coupons->removeElement($coupon);
+            $coupon->removeUser($this);
+        }
 
         return $this;
     }
