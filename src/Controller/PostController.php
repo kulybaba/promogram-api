@@ -7,6 +7,7 @@ use App\Entity\Post;
 use App\Entity\User;
 use App\Normalizer\PostNormalizer;
 use App\Security\Voter\PostVoter;
+use App\Services\CouponService;
 use App\Services\ValidateService;
 use Imagick;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,19 +25,31 @@ use Symfony\Component\Serializer\SerializerInterface;
 class PostController extends AbstractController
 {
     /**
-     * @var SerializerInterface
+     * @var SerializerInterface $serializer
      */
     private $serializer;
 
     /**
-     * @var ValidateService
+     * @var ValidateService $validateService
      */
     private $validateService;
 
-    public function __construct(SerializerInterface $serializer, ValidateService $validateService)
+    /**
+     * @var CouponService $couponService
+     */
+    private $couponService;
+
+    /**
+     * PostController constructor.
+     * @param SerializerInterface $serializer
+     * @param ValidateService $validateService
+     * @param CouponService $couponService
+     */
+    public function __construct(SerializerInterface $serializer, ValidateService $validateService, CouponService $couponService)
     {
         $this->serializer = $serializer;
         $this->validateService = $validateService;
+        $this->couponService = $couponService;
     }
 
     /**
@@ -145,6 +158,8 @@ class PostController extends AbstractController
 
         $this->getDoctrine()->getManager()->persist($like);
         $this->getDoctrine()->getManager()->flush();
+
+        $this->couponService->checkCountLikes($post);
 
         return $this->json([
             'success' => true,

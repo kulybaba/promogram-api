@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Entity\Coupon;
 use App\Entity\User;
 
 class EmailService
@@ -33,6 +34,15 @@ class EmailService
             ->setFrom($this->adminEmail)
             ->setTo($user->getEmail())
             ->setBody('Congratulations! ' . $user->getFirstName() . ' ' . $user->getLastName() . ', you are successfully registered. ' . 'Email: ' . $user->getEmail() . '. Password: ' . $user->getPlainPassword() . '.');
+        $this->mailer->send($message);
+    }
+
+    public function sendCouponEmail(User $user, Coupon $coupon)
+    {
+        $message = (new \Swift_Message('Coupon email'))
+            ->setFrom($this->adminEmail)
+            ->setTo($user->getEmail())
+            ->setBody('Congratulations! ' . $user->getFirstName() . ' ' . $user->getLastName() . ', you received a coupon with ' . $coupon->getPercentDiscount() . '% discount from the company - ' . $coupon->getCompany()->getName() . '.');
         $this->mailer->send($message);
     }
 }
