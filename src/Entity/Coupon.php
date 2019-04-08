@@ -71,9 +71,34 @@ class Coupon
     private $retailer;
 
     /**
+     * @Assert\NotBlank()
      * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="coupons")
      */
     private $user;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     min="1",
+     *     minMessage="Count likes must contain minimum 1 digit."
+     * )
+     * @var integer
+     * @ORM\Column(type="integer")
+     */
+    private $countLikes;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(
+     *     max="3",
+     *     min="1",
+     *     maxMessage="Percent discount must contain maximum 3 digits.",
+     *     minMessage="Percent discount must contain minimum 1 digit.",
+     * )
+     * @var integer
+     * @ORM\Column(type="integer")
+     */
+    private $percentDiscount;
 
     public function __construct()
     {
@@ -167,6 +192,30 @@ class Coupon
         if ($this->user->contains($user)) {
             $this->user->removeElement($user);
         }
+
+        return $this;
+    }
+
+    public function getCountLikes(): ?int
+    {
+        return $this->countLikes;
+    }
+
+    public function setCountLikes(int $countLikes): self
+    {
+        $this->countLikes = $countLikes;
+
+        return $this;
+    }
+
+    public function getPercentDiscount(): ?int
+    {
+        return $this->percentDiscount;
+    }
+
+    public function setPercentDiscount(int $percentDiscount): self
+    {
+        $this->percentDiscount = $percentDiscount;
 
         return $this;
     }
