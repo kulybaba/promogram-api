@@ -11,7 +11,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
  * @ORM\EntityListeners({"App\Listener\PostListener"})
  */
-class Post
+class Post implements \JsonSerializable
 {
     use TimestampableEntity;
 
@@ -244,5 +244,17 @@ class Post
         $this->pictureKey = $pictureKey;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'authorId' => $this->getAuthor()->getId(),
+            'picture' => $this->getPicture(),
+            'text' => $this->getText(),
+            'createdAt' => $this->getCreatedAt(),
+            'updatedAt' => $this->getUpdatedAt()
+        ];
     }
 }

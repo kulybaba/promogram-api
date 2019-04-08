@@ -41,4 +41,30 @@ class UserService
 
         return $password[0];
     }
+
+    public function filterUsersOnRoleRetailer($users)
+    {
+        $retailers = [];
+
+        foreach ($users as $user) {
+            if ($user->getRoles() === ["ROLE_RETAILER"]) {
+                $retailers[] = $user;
+            }
+        }
+
+        return $retailers;
+    }
+
+    public function filterUsersOnRoleUser($users)
+    {
+        $authors = [];
+
+        foreach ($users as $user) {
+            if ($user->getRoles() === ["ROLE_USER"]) {
+                $authors[] = $user;
+            }
+        }
+
+        return $authors;
+    }
 }
